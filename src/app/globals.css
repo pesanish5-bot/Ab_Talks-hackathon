@@ -21,6 +21,74 @@ body {
   background-color: #152A35;
 }
 
+.scroll-chapter {
+  position: relative;
+  min-height: 165svh;
+}
+
+.scroll-chapter__panel {
+  position: sticky;
+  top: 0;
+  display: flex;
+  min-height: 100svh;
+  align-items: center;
+  will-change: opacity, transform, filter;
+}
+
+.scroll-chapter__panel > section {
+  width: 100%;
+  background-color: rgba(8, 25, 35, 0.16) !important;
+  background-image: linear-gradient(135deg, rgba(8, 24, 34, 0.12), rgba(20, 54, 67, 0.04)) !important;
+  backdrop-filter: blur(2px);
+}
+
+.scroll-chapter--hero {
+  min-height: 150svh;
+}
+
+.scroll-chapter--cta {
+  min-height: 140svh;
+}
+
+.scroll-chapter--cta h2,
+.scroll-chapter--cta p {
+  text-shadow: 0 3px 18px rgba(3, 12, 18, 0.82);
+}
+
+@media (max-width: 767px) {
+  .scroll-chapter,
+  .scroll-chapter--hero,
+  .scroll-chapter--cta {
+    min-height: 145svh;
+  }
+
+  .scroll-chapter__panel > section {
+    backdrop-filter: none;
+  }
+}
+
+.cinematic-content > footer {
+  background-color: rgba(8, 24, 34, 0.4) !important;
+  backdrop-filter: blur(8px);
+}
+
+.cinematic-content .card-cyan-line,
+.cinematic-content .shadow-card-hover {
+  backdrop-filter: blur(8px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cinematic-content button:not(:disabled),
+  .cinematic-content a {
+    transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .cinematic-content button:not(:disabled):hover,
+  .cinematic-content a:hover {
+    transform: translateY(-2px);
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -92,4 +160,35 @@ html.lenis, html.lenis body {
 }
 .card-cyan-line:hover::after {
   transform: scaleX(1);
+}
+
+:where(button, a, input, select):focus-visible {
+  outline: 2px solid #5ED1C9;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-chapter,
+  .scroll-chapter--hero,
+  .scroll-chapter--cta {
+    min-height: auto;
+  }
+
+  .scroll-chapter__panel {
+    position: relative;
+    min-height: auto;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

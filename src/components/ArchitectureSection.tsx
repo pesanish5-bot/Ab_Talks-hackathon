@@ -1,145 +1,65 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, CheckCircle2, ClipboardCheck, GitBranch, MessageCircleQuestion, ScanSearch, Sparkles } from "lucide-react";
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Server, Database, Brain, Workflow, ArrowRight, CheckCircle, Terminal, Layers } from "lucide-react";
 
-const ARCH_STAGES = [
-  {
-    step: "01",
-    name: "HTTP Router",
-    type: "POST /api/interview",
-    desc: "Accepts sessionId + candidate object (from candidates.json) or sessionId + message. Validates schema shape.",
-    code: `POST /api/interview HTTP/1.1\nContent-Type: application/json\n\n{\n  "sessionId": "abc-123",\n  "candidate": {\n    "member": {\n      "id": "CAND-007",\n      "name": "Ethan Brooks",\n      "jobRole": "Computer Science Intern",\n      "yearsExperience": 0,\n      "education": "BS Computer Science (in progress)"\n    },\n    "missions": [\n      { "day": 7, "title": "Embeddings Explained", "passed": true, "attempts": 2 },\n      { "day": 27, "title": "Security & Guardrails", "skipped": true }\n    ],\n    "signals": { "commitDays": 26, "missionsCompleted": 27, "missionsFirstTry": 22 }\n  }\n}`
-  },
-  {
-    step: "02",
-    name: "Session Store",
-    type: "In-Memory / Redis TTL",
-    desc: "Creates session state indexed by sessionId. Tracks conversation history, question count, and covered curriculum days set.",
-    code: `Session State Created:\n{\n  "sessionId": "abc-123",\n  "candidate": { "member": { "name": "Ethan Brooks", ... } },\n  "questionCount": 1,\n  "coveredDays": [7],\n  "questionQueue": [27, 28, 7, 8, 12, 16, 22, 1, 3, 31],\n  "analysis": {\n    "skippedDays": [27, 28],\n    "passedDays": [1, 3, 7, 8, 12, 16, 22, 31],\n    "experienceLevel": "junior"\n  }\n}`
-  },
-  {
-    step: "03",
-    name: "Curriculum Retriever",
-    type: "curriculum.json Lookup",
-    desc: "Loads day data from curriculum.json (31 days, 8 modules). Selects next probing topic based on skipped/failed/struggled missions.",
-    code: `Curriculum Day Loaded:\n{\n  "day": 27,\n  "title": "Security, Privacy & Guardrails",\n  "type": "BUILD",\n  "tools": ["FastAPI", "Python", "Authentication", "Input Validation"],\n  "objectives": [\n    "Secure chatbot APIs against unauthorized access",\n    "Implement prompt-injection and jailbreak safeguards"\n  ]\n}\n\nQuestion Strategy: SKIPPED → probe basic awareness`
-  },
-  {
-    step: "04",
-    name: "Question Generator",
-    type: "Adaptive Single-Turn",
-    desc: "Generates exactly ONE question per turn. Adapts depth based on candidate YOE and mission attempt count. Enforces min 8 Qs across min 4 days.",
-    code: `Response Payload:\n{\n  "reply": "Day 27 covered Security, Privacy & Guardrails,\n    which you skipped. Can you explain the core\n    concept behind securing chatbot APIs\n    against unauthorized access?",\n  "done": false\n}`
-  }
+const INTERVIEW_FLOW = [
+  { step: "01", title: "Start with the learner", label: "Candidate context", detail: "The session begins with the candidate's completed missions, skipped topics, retries, and experience level — so the first question has a real reason to exist.", prompt: "You completed RAG basics, but skipped production monitoring. Where would you like to begin?", outcome: "Questions are anchored to actual learning, not a generic question bank.", icon: ScanSearch },
+  { step: "02", title: "Keep the thread", label: "Conversation context", detail: "Each response remains part of the active interview, so the agent can continue the same line of reasoning instead of resetting at every turn.", prompt: "You mentioned chunking strategy. What trade-off did you make between recall and answer precision?", outcome: "The conversation feels continuous and gives candidates room to explain their reasoning.", icon: MessageCircleQuestion },
+  { step: "03", title: "Probe with purpose", label: "Adaptive follow-up", detail: "Short or vague answers trigger one clarifying follow-up. Strong answers move to another relevant curriculum area, preserving momentum while testing depth.", prompt: "Before we move on, give me one concrete example of how you would validate that choice.", outcome: "The interview adapts to the answer instead of feeling like a scripted questionnaire.", icon: GitBranch },
+  { step: "04", title: "Leave with a plan", label: "Actionable recap", detail: "After a rigorous eight-question conversation across the curriculum, the candidate receives strengths, focus areas, and next steps they can use immediately.", prompt: "Your interview recap is ready: keep your retrieval examples, strengthen production-readiness stories.", outcome: "Every practice session ends with a useful next move, not just a score.", icon: ClipboardCheck },
 ];
 
 export default function ArchitectureSection() {
   const [activeStep, setActiveStep] = useState(0);
+  const shouldReduceMotion = useReducedMotion();
+  const activeFlow = INTERVIEW_FLOW[activeStep];
+  const ActiveIcon = activeFlow.icon;
 
   return (
-    <section id="architecture" className="relative w-full py-28 px-6 bg-slate-midnight border-t border-aqua-spotlight/20">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* Section Header */}
-        <div className="flex items-baseline space-x-4 mb-16">
-          <span className="font-mono text-cyan-accent font-bold text-sm tracking-widest">03 —</span>
-          <h2 className="font-display font-bold text-6xl md:text-8xl text-cream-paper uppercase tracking-wider">
-            ARCHITECTURE
-          </h2>
-        </div>
-
-        {/* Wide Cinematic Diagram Presentation Card */}
-        <div className="relative p-8 md:p-12 rounded-3xl bg-gradient-to-b from-slate-deep to-slate-midnight border border-aqua-spotlight/40 shadow-2xl overflow-hidden mb-12">
-          
-          {/* Header Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-aqua-spotlight/30 pb-6 mb-8 gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-cyan-accent/10 text-cyan-accent">
-                <Workflow className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-cream-paper">STATELESS MULTI-TURN PIPELINE FLOW</h3>
-                <p className="text-xs font-mono text-cream-muted">Request Lifecycle & Agent State Machine</p>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2 font-mono text-xs text-cyan-accent bg-slate-midnight px-3 py-1.5 rounded-lg border border-aqua-spotlight/50">
-              <Terminal className="w-3.5 h-3.5" />
-              <span>UNAUTHENTICATED • SUB-3S LATENCY TARGET</span>
-            </div>
+    <section id="architecture" className="relative w-full border-t border-aqua-spotlight/20 bg-slate-midnight px-6 py-28">
+      <div className="mx-auto max-w-7xl">
+        <motion.div initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <div className="mb-2 flex items-baseline space-x-4"><span className="font-mono text-sm font-bold tracking-widest text-cyan-accent">03 —</span><h2 className="font-display text-6xl font-bold tracking-wider text-cream-paper uppercase md:text-8xl">A real <span className="text-cyan-accent">interview flow</span></h2></div>
+            <p className="max-w-2xl text-base leading-relaxed text-cream-muted">The experience is designed to feel like a thoughtful technical conversation: context first, follow-up where it matters, and a practical recap at the end.</p>
           </div>
+          <div className="inline-flex items-center gap-2 self-start rounded-full border border-aqua-spotlight/50 bg-slate-deep px-4 py-2 font-mono text-xs text-cream-muted md:self-auto"><Sparkles className="h-4 w-4 text-cyan-accent" />One question at a time</div>
+        </motion.div>
 
-          {/* Interactive Pipeline Stages Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {ARCH_STAGES.map((stage, idx) => {
-              const isActive = activeStep === idx;
-              return (
-                <button
-                  key={stage.step}
-                  onClick={() => setActiveStep(idx)}
-                  className={`text-left p-5 rounded-xl border transition-all duration-300 relative ${
-                    isActive
-                      ? "bg-aqua-spotlight/40 border-cyan-accent shadow-glow-cyan"
-                      : "bg-slate-midnight/60 border-aqua-spotlight/30 hover:border-cyan-accent/50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-mono text-xs font-bold text-cyan-accent">
-                      STEP {stage.step}
-                    </span>
-                    {isActive && (
-                      <span className="w-2 h-2 rounded-full bg-cyan-accent animate-ping" />
-                    )}
-                  </div>
-                  <h4 className="font-bold text-base text-cream-paper mb-1">{stage.name}</h4>
-                  <div className="font-mono text-[11px] text-cyan-accent/80">{stage.type}</div>
-                </button>
-              );
+        <div className="mt-12 rounded-3xl border border-aqua-spotlight/40 bg-gradient-to-b from-slate-deep to-slate-midnight p-5 shadow-2xl md:p-8">
+          <div className="grid gap-3 md:grid-cols-4">
+            {INTERVIEW_FLOW.map((flow, index) => {
+              const Icon = flow.icon;
+              const isActive = activeStep === index;
+              return <button key={flow.step} type="button" onClick={() => setActiveStep(index)} aria-pressed={isActive} className={`group rounded-2xl border p-4 text-left transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-accent ${isActive ? "border-cyan-accent bg-cyan-accent/10 shadow-glow-cyan" : "border-aqua-spotlight/30 bg-slate-midnight/50 hover:-translate-y-1 hover:border-cyan-accent/55"}`}>
+                <div className="flex items-center justify-between"><span className="font-mono text-[11px] font-bold tracking-widest text-cyan-accent">STEP {flow.step}</span><Icon className={`h-4 w-4 ${isActive ? "text-cyan-accent" : "text-cream-muted group-hover:text-cyan-accent"}`} /></div>
+                <div className="mt-5 text-sm font-bold text-cream-paper">{flow.label}</div>
+                <div className={`mt-3 h-1 rounded-full transition-colors ${isActive ? "bg-cyan-accent" : "bg-aqua-spotlight/50 group-hover:bg-cyan-accent/50"}`} />
+              </button>;
             })}
           </div>
 
-          {/* Stage Inspection Terminal View */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch bg-slate-midnight/90 rounded-2xl p-6 border border-aqua-spotlight/40">
-            <div className="lg:col-span-5 flex flex-col justify-between">
-              <div>
-                <span className="font-mono text-xs text-cyan-accent uppercase tracking-widest">
-                  STAGE ANALYSIS — STEP {ARCH_STAGES[activeStep].step}
-                </span>
-                <h4 className="text-2xl font-bold text-cream-paper mt-2 mb-3">
-                  {ARCH_STAGES[activeStep].name}
-                </h4>
-                <p className="text-cream-muted text-sm leading-relaxed mb-6">
-                  {ARCH_STAGES[activeStep].desc}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-deep/80 border border-aqua-spotlight/30">
-                <div className="text-xs font-mono text-cream-muted mb-2">KEY STATE TRANSITIONS</div>
-                <div className="flex items-center space-x-2 text-xs font-mono text-cyan-accent">
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Enforces Single Question Rule</span>
+          <div className="mt-6 overflow-hidden rounded-2xl border border-aqua-spotlight/40 bg-slate-midnight/80 p-6 md:p-8">
+            <AnimatePresence mode="wait" initial={!shouldReduceMotion}>
+              <motion.div key={activeFlow.step} initial={{ opacity: 0, x: shouldReduceMotion ? 0 : 18 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: shouldReduceMotion ? 0 : -18 }} transition={{ duration: shouldReduceMotion ? 0 : 0.28 }} className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+                <div>
+                  <div className="flex items-center gap-3 text-cyan-accent"><div className="rounded-xl border border-cyan-accent/30 bg-cyan-accent/10 p-2.5"><ActiveIcon className="h-5 w-5" /></div><span className="font-mono text-xs font-bold tracking-widest uppercase">{activeFlow.label}</span></div>
+                  <h3 className="mt-5 text-3xl font-bold text-cream-paper">{activeFlow.title}</h3>
+                  <p className="mt-4 max-w-xl leading-relaxed text-cream-muted">{activeFlow.detail}</p>
+                  <div className="mt-6 flex items-start gap-3 rounded-xl border border-cyan-accent/20 bg-cyan-accent/5 p-4 text-sm text-cream-paper"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-cyan-accent" /><span>{activeFlow.outcome}</span></div>
                 </div>
-                <div className="flex items-center space-x-2 text-xs font-mono text-cyan-accent mt-1.5">
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Tracks 4-Day Curriculum Span</span>
+                <div className="relative rounded-2xl border border-aqua-spotlight/40 bg-slate-deep/70 p-6">
+                  <div className="flex items-center justify-between border-b border-aqua-spotlight/30 pb-4 font-mono text-[11px] tracking-wider text-cream-muted uppercase"><span>What the candidate experiences</span><span className="text-cyan-accent">LIVE THREAD</span></div>
+                  <div className="mt-6 flex items-start gap-3"><div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-cyan-accent/30 bg-cyan-accent/10 text-cyan-accent"><ActiveIcon className="h-4 w-4" /></div><p className="rounded-2xl rounded-tl-none border border-aqua-spotlight/40 bg-slate-midnight px-5 py-4 text-sm leading-relaxed text-cream-paper">{activeFlow.prompt}</p></div>
+                  <div className="mt-6 flex items-center gap-2 font-mono text-[11px] text-cyan-accent"><span className="h-1.5 w-1.5 rounded-full bg-cyan-accent animate-pulse" />SESSION CONTEXT ACTIVE</div>
                 </div>
-              </div>
-            </div>
-
-            {/* Monospace Code / JSON Inspector */}
-            <div className="lg:col-span-7 bg-black/60 rounded-xl p-5 border border-aqua-spotlight/30 font-mono text-xs overflow-x-auto text-cyan-accent/90">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4 text-cream-muted">
-                <span>INSPECTOR OUTPUT Payload</span>
-                <span>JSON / HTTP</span>
-              </div>
-              <pre className="text-cream-paper whitespace-pre-wrap leading-relaxed">
-                {ARCH_STAGES[activeStep].code}
-              </pre>
-            </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
-
+          <div className="mt-6 flex items-center justify-between font-mono text-xs text-cream-muted"><span>INTERVIEW PROGRESS</span><span className="text-cyan-accent">{activeStep + 1} / {INTERVIEW_FLOW.length}</span></div>
+          <div className="mt-2 h-1 overflow-hidden rounded-full bg-aqua-spotlight/35"><motion.div animate={{ width: `${((activeStep + 1) / INTERVIEW_FLOW.length) * 100}%` }} transition={{ duration: shouldReduceMotion ? 0 : 0.32, ease: "easeOut" }} className="h-full rounded-full bg-cyan-accent" /></div>
         </div>
       </div>
     </section>

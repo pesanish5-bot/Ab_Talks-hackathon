@@ -18,31 +18,31 @@ const CAPABILITIES = [
     id: "02",
     tag: "MEMORY & STATE",
     title: "Context Management",
-    description: "Maintains conversation history and session state across stateless HTTP requests using a rolling sliding window and summary buffer.",
+    description: "Keeps the active interview thread, candidate context, and already-covered topics together for the duration of the practice session.",
     icon: Database,
     bgTone: "bg-aqua-spotlight/30",
     accent: "text-cyan-accent",
-    detail: "Indexed by sessionId with automatic 60-minute rolling TTL eviction."
+    detail: "Session-scoped context with inactive-session cleanup."
   },
   {
     id: "03",
     tag: "CURRICULUM RIGOR",
-    title: "4-Day Coverage",
-    description: "Enforces minimum coverage across at least 4 distinct curriculum days, probing passed, skipped, and re-attempted mission topics.",
+    title: "Breadth by Design",
+    description: "Covers a minimum of eight questions across the curriculum, balancing passed, skipped, and re-attempted mission topics.",
     icon: BookOpen,
     bgTone: "bg-slate-midnight",
     accent: "text-cyan-accent",
-    detail: "Prevents candidate topic dodging by anchoring questions to 31-day logs."
+    detail: "Keeps each practice run rooted in the 31-day learning journey."
   },
   {
     id: "04",
     tag: "EVALUATION ENGINE",
-    title: "Structured Output",
-    description: "Synthesizes final turn into a strict JSON payload featuring an executive summary, strengths array, skill gaps, and next learning steps.",
+    title: "Actionable Feedback",
+    description: "Turns the completed conversation into clear strengths, focused skill gaps, and practical next steps for the next interview.",
     icon: FileCheck,
     bgTone: "bg-slate-deep/80",
     accent: "text-cyan-accent",
-    detail: "Validated via Pydantic schemas with zero empty fields or generic fluff."
+    detail: "A candidate-friendly recap, not a scorecard or developer payload."
   }
 ];
 
@@ -61,7 +61,7 @@ export default function CapabilitiesSection() {
               </h2>
             </div>
             <p className="text-cream-muted text-base max-w-xl">
-              Engineered against strict non-functional constraints to guarantee fair, rigorous, and automated technical evaluation.
+              Every capability supports a more useful technical conversation: personal context, thoughtful questioning, meaningful coverage, and a clear next step.
             </p>
           </div>
 
