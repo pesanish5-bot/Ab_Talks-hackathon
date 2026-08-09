@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MotionConfig } from "framer-motion";
 import Navbar from "./Navbar";
 import HeroSection from "./HeroSection";
 import IntroductionSection from "./IntroductionSection";
@@ -8,41 +9,31 @@ import CapabilitiesSection from "./CapabilitiesSection";
 import ArchitectureSection from "./ArchitectureSection";
 import FeedbackSection from "./FeedbackSection";
 import LivePlayground from "./LivePlayground";
-import DocumentationDrawer from "./DocumentationDrawer";
-import { Terminal, FileText, Cpu, Heart } from "lucide-react";
+import ScrollVideoBackground from "./ScrollVideoBackground";
+import ScrollChapter from "./ScrollChapter";
+import { Terminal, Cpu } from "lucide-react";
 
-interface ShowcaseAppProps {
-  docContents: Record<string, string>;
-}
-
-export default function ShowcaseApp({ docContents }: ShowcaseAppProps) {
-  const [isDocsOpen, setIsDocsOpen] = useState(false);
+export default function ShowcaseApp() {
   const [isPlaygroundOpen, setIsPlaygroundOpen] = useState(false);
 
   return (
-    <main className="min-h-screen bg-slate-midnight text-cream-paper relative">
+    <MotionConfig reducedMotion="user">
+    <ScrollVideoBackground />
+    <main className="cinematic-content relative z-10 min-h-screen text-cream-paper">
       {/* Navbar */}
-      <Navbar 
-        onOpenDocs={() => setIsDocsOpen(true)}
-        onOpenPlayground={() => setIsPlaygroundOpen(true)}
-      />
+      <Navbar onOpenPlayground={() => setIsPlaygroundOpen(true)} />
 
-      {/* Hero Section */}
-      <HeroSection />
+      <ScrollChapter className="scroll-chapter--hero">
+        <HeroSection onLaunchPlayground={() => setIsPlaygroundOpen(true)} />
+      </ScrollChapter>
 
-      {/* 01 - Introduction */}
-      <IntroductionSection />
-
-      {/* 02 - Capabilities */}
-      <CapabilitiesSection />
-
-      {/* 03 - System Architecture */}
-      <ArchitectureSection />
-
-      {/* 04 - Structured Feedback Design */}
-      <FeedbackSection />
+      <ScrollChapter><IntroductionSection /></ScrollChapter>
+      <ScrollChapter><CapabilitiesSection /></ScrollChapter>
+      <ScrollChapter><ArchitectureSection /></ScrollChapter>
+      <ScrollChapter><FeedbackSection /></ScrollChapter>
 
       {/* Interactive CTA Banner */}
+      <ScrollChapter className="scroll-chapter--cta">
       <section className="relative py-24 px-6 bg-gradient-to-r from-slate-deep via-aqua-spotlight/30 to-slate-deep border-t border-aqua-spotlight/30 text-center">
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-accent/10 border border-cyan-accent/30 text-cyan-accent font-mono text-xs uppercase">
@@ -51,32 +42,26 @@ export default function ShowcaseApp({ docContents }: ShowcaseAppProps) {
           </div>
 
           <h2 className="font-display text-5xl md:text-7xl font-bold text-cream-paper uppercase tracking-wider">
-            TEST THE AI INTERVIEW AGENT LIVE
+            PRACTICE THE CONVERSATION
           </h2>
 
           <p className="text-cream-muted text-base max-w-xl mx-auto">
-            Experience multi-turn dialogue adaptation, curriculum question probing, and instant JSON evaluation generation.
+            Turn your cohort progress into a clear interview story, then leave with a focused plan for what to sharpen next.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <button
+              type="button"
               onClick={() => setIsPlaygroundOpen(true)}
               className="px-8 py-4 rounded-xl bg-cyan-accent text-slate-midnight font-bold font-mono text-sm hover:bg-cyan-glow hover:shadow-glow-cyan transition-all flex items-center space-x-2"
             >
               <Terminal className="w-4 h-4" />
-              <span>LAUNCH INTERACTIVE PLAYGROUND</span>
-            </button>
-
-            <button
-              onClick={() => setIsDocsOpen(true)}
-              className="px-8 py-4 rounded-xl bg-slate-midnight border border-aqua-spotlight text-cream-paper font-mono text-sm hover:bg-aqua-spotlight/40 hover:text-cyan-accent transition-all flex items-center space-x-2"
-            >
-              <FileText className="w-4 h-4" />
-              <span>BROWSE ALL 6 ARCHITECTURE DOCS</span>
+              <span>START YOUR LIVE INTERVIEW</span>
             </button>
           </div>
         </div>
       </section>
+      </ScrollChapter>
 
       {/* Footer */}
       <footer className="w-full py-12 px-6 bg-slate-midnight border-t border-aqua-spotlight/20 text-xs font-mono text-cream-muted">
@@ -92,17 +77,13 @@ export default function ShowcaseApp({ docContents }: ShowcaseAppProps) {
         </div>
       </footer>
 
-      {/* Interactive Modals / Drawers */}
+      {/* Interactive playground */}
       <LivePlayground 
         isOpen={isPlaygroundOpen} 
         onClose={() => setIsPlaygroundOpen(false)} 
       />
 
-      <DocumentationDrawer 
-        isOpen={isDocsOpen} 
-        onClose={() => setIsDocsOpen(false)} 
-        docContents={docContents} 
-      />
     </main>
+    </MotionConfig>
   );
 }

@@ -1,189 +1,132 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { CheckCircle2, AlertTriangle, ArrowRight, Code, LayoutDashboard, Award } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { AlertTriangle, ArrowRight, Award, CheckCircle2, Target, type LucideIcon } from "lucide-react";
 
-const MOCK_FEEDBACK = {
-  summary: "Sarah Johnson (Senior Data Engineer, 9 YOE) completed the technical interview covering 9 questions across 7 curriculum days spanning 5 modules. Overall commit rate: 90% (28/31 days). First-try pass rate: 67%. Strong comprehension in Embeddings (Day 7), Vector Databases (Day 8), and Chatbot Backend (Day 16). Notable gap in skipped topic: Monitoring, Logging & Observability (Day 29).",
+const FEEDBACK = {
+  summary:
+    "Sarah completed a rigorous interview across retrieval, prompting, application delivery, and production readiness. Her strongest answers connected implementation choices to measurable outcomes.",
   strengths: [
-    "Mastered 'Embeddings Explained' (Day 7) on first attempt using Sentence Transformers, OpenAI Embeddings.",
-    "Mastered 'Vector Databases Overview' (Day 8) on first attempt using ChromaDB, Pinecone.",
-    "Strong first-attempt success rate (67%) indicating solid comprehension across 20 missions.",
-    "Excellent engagement with 90% commit day attendance (28/31 days)."
+    "Explains vector-search trade-offs with confidence.",
+    "Connects API design decisions to the user experience.",
+    "Shows consistent progress across the cohort.",
   ],
-  gaps: [
-    "Skipped: Monitoring, Logging & Observability (Day 29) — no exposure to Prometheus, Grafana dashboards.",
-    "Struggled with: Prompt Engineering Fundamentals (Day 12, 4 attempts) — review zero-shot, few-shot, chain-of-thought prompting.",
-    "Struggled with: Docker & Kubernetes Deployment (Day 28, 3 attempts) — review containerization and health checks."
+  focus: [
+    "Make monitoring and observability examples more concrete.",
+    "Practice explaining prompt-safety decisions aloud.",
+    "Rehearse deployment trade-offs with a real project story.",
   ],
   next: [
-    "Complete the skipped Day 29 mission: 'Monitoring, Logging & Observability' using Python Logging, Prometheus, Grafana.",
-    "Review Day 12: 'Prompt Engineering Fundamentals' — strengthen understanding of prompt template design.",
-    "Review Day 28: 'Docker & Kubernetes Deployment' — practice containerizing FastAPI and React apps."
-  ]
+    "Pick one production incident or project decision to unpack.",
+    "Revisit the observability mission and write down your approach.",
+    "Run another practice interview to test the improvement.",
+  ],
 };
 
-
 export default function FeedbackSection() {
-  const [viewMode, setViewMode] = useState<"ui" | "json">("ui");
+  const shouldReduceMotion = useReducedMotion();
+  const reveal = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 22 },
+    visible: { opacity: 1, y: 0 },
+  };
 
   return (
-    <section id="feedback" className="relative w-full py-28 px-6 bg-slate-deep/40 border-t border-aqua-spotlight/20">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
+    <section id="feedback" className="relative w-full overflow-hidden border-t border-aqua-spotlight/20 bg-slate-deep/40 px-6 py-28">
+      <div className="absolute -right-32 top-16 h-80 w-80 rounded-full bg-cyan-accent/10 blur-3xl" />
+      <div className="relative mx-auto max-w-7xl">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.25 }}
+          variants={reveal}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}
+          className="flex flex-col justify-between gap-6 md:flex-row md:items-end"
+        >
           <div>
-            <div className="flex items-baseline space-x-4 mb-2">
-              <span className="font-mono text-cyan-accent font-bold text-sm tracking-widest">04 —</span>
-              <h2 className="font-display font-bold text-6xl md:text-8xl text-cream-paper uppercase tracking-wider">
-                FEEDBACK DESIGN
+            <div className="mb-2 flex items-baseline space-x-4">
+              <span className="font-mono text-sm font-bold tracking-widest text-cyan-accent">04 —</span>
+              <h2 className="font-display text-6xl font-bold tracking-wider text-cream-paper uppercase md:text-8xl">
+                Ready for the <span className="text-cyan-accent">real room</span>
               </h2>
             </div>
-            <p className="text-cream-muted text-base max-w-xl">
-              Translating terminal interview state into structured JSON and actionable dashboard metrics.
+            <p className="max-w-2xl text-base leading-relaxed text-cream-muted">
+              The interview ends with a clear picture of what you explain well, what needs another pass, and exactly how to prepare for the next conversation.
             </p>
           </div>
-
-          {/* View Toggle */}
-          <div className="flex items-center space-x-1 bg-slate-midnight p-1 rounded-xl border border-aqua-spotlight/50 self-start md:self-auto">
-            <button
-              onClick={() => setViewMode("ui")}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-mono transition-all ${
-                viewMode === "ui"
-                  ? "bg-cyan-accent text-slate-midnight font-bold shadow-glow-cyan"
-                  : "text-cream-muted hover:text-cream-paper"
-              }`}
-            >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>DASHBOARD UI</span>
-            </button>
-
-            <button
-              onClick={() => setViewMode("json")}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-mono transition-all ${
-                viewMode === "json"
-                  ? "bg-cyan-accent text-slate-midnight font-bold shadow-glow-cyan"
-                  : "text-cream-muted hover:text-cream-paper"
-              }`}
-            >
-              <Code className="w-3.5 h-3.5" />
-              <span>RAW JSON SCHEMA</span>
-            </button>
+          <div className="inline-flex items-center gap-2 self-start rounded-full border border-cyan-accent/30 bg-cyan-accent/10 px-4 py-2 font-mono text-xs font-semibold tracking-wider text-cyan-accent uppercase md:self-auto">
+            <Target className="h-4 w-4" />
+            From reflection to action
           </div>
-        </div>
+        </motion.div>
 
-        {/* Dashboard Card Container */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="relative p-8 md:p-10 rounded-3xl bg-slate-midnight border border-aqua-spotlight/50 shadow-card-hover overflow-hidden"
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          variants={reveal}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.55, delay: shouldReduceMotion ? 0 : 0.08 }}
+          className="relative mt-12 overflow-hidden rounded-3xl border border-aqua-spotlight/50 bg-slate-midnight p-6 shadow-card-hover md:p-10"
         >
-          {viewMode === "ui" ? (
-            <div className="space-y-8">
-              
-              {/* Header Status Bar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-aqua-spotlight/30 pb-6 gap-4">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2.5 rounded-xl bg-cyan-accent/10 border border-cyan-accent/30 text-cyan-accent">
-                    <Award className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-cream-paper">INTERVIEW PERFORMANCE EVALUATION</h3>
-                    <div className="text-xs font-mono text-cyan-accent">Candidate: Sarah Johnson (CAND-001) • Status: Completed (9 Qs, 7 Days, 5 Modules)</div>
-                  </div>
-                </div>
-
-                <div className="px-3 py-1 rounded bg-cyan-accent/10 border border-cyan-accent/30 text-cyan-accent font-mono text-xs self-start sm:self-auto">
-                  done: true
-                </div>
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-accent to-transparent" />
+          <div className="flex flex-col justify-between gap-4 border-b border-aqua-spotlight/30 pb-6 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl border border-cyan-accent/30 bg-cyan-accent/10 p-2.5 text-cyan-accent"><Award className="h-6 w-6" /></div>
+              <div>
+                <h3 className="text-lg font-bold text-cream-paper">YOUR INTERVIEW RECAP</h3>
+                <p className="mt-0.5 font-mono text-xs text-cream-muted">Sarah Johnson · Senior Data Engineer · Completed</p>
               </div>
+            </div>
+            <div className="rounded-full border border-cyan-accent/30 bg-cyan-accent/10 px-3 py-1.5 font-mono text-xs font-bold text-cyan-accent">8 QUESTIONS · 4+ TOPICS</div>
+          </div>
 
-              {/* Executive Summary */}
-              <div className="p-6 rounded-2xl bg-slate-deep/80 border border-aqua-spotlight/40">
-                <div className="font-mono text-xs text-cyan-accent tracking-widest uppercase mb-2">
-                  EXECUTIVE SUMMARY
-                </div>
-                <p className="text-cream-paper/90 text-base leading-relaxed">
-                  {MOCK_FEEDBACK.summary}
-                </p>
-              </div>
+          <div className="mt-6 rounded-2xl border border-aqua-spotlight/40 bg-slate-deep/70 p-6">
+            <div className="font-mono text-xs tracking-[0.16em] text-cyan-accent uppercase">What came through</div>
+            <p className="mt-3 max-w-4xl text-base leading-relaxed text-cream-paper/90">{FEEDBACK.summary}</p>
+          </div>
 
-              {/* Strengths & Skill Gaps Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* Strengths */}
-                <div className="p-6 rounded-2xl bg-slate-deep/50 border border-cyan-accent/30">
-                  <div className="flex items-center space-x-2 text-cyan-accent font-mono text-xs tracking-widest uppercase mb-4">
-                    <CheckCircle2 className="w-4 h-4 text-cyan-accent" />
-                    <span>IDENTIFIED STRENGTHS</span>
-                  </div>
-                  <ul className="space-y-3">
-                    {MOCK_FEEDBACK.strengths.map((str, i) => (
-                      <li key={i} className="flex items-start space-x-3 text-sm text-cream-paper/90">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-accent shrink-0 mt-0.5" />
-                        <span>{str}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+          <div className="mt-6 grid gap-5 md:grid-cols-2">
+            <FeedbackCard icon={CheckCircle2} title="Keep doing" items={FEEDBACK.strengths} tone="cyan" shouldReduceMotion={shouldReduceMotion} />
+            <FeedbackCard icon={AlertTriangle} title="Sharpen next" items={FEEDBACK.focus} tone="amber" shouldReduceMotion={shouldReduceMotion} />
+          </div>
 
-                {/* Gaps */}
-                <div className="p-6 rounded-2xl bg-slate-deep/50 border border-amber-500/30">
-                  <div className="flex items-center space-x-2 text-amber-400 font-mono text-xs tracking-widest uppercase mb-4">
-                    <AlertTriangle className="w-4 h-4 text-amber-400" />
-                    <span>IDENTIFIED SKILL GAPS</span>
-                  </div>
-                  <ul className="space-y-3">
-                    {MOCK_FEEDBACK.gaps.map((gap, i) => (
-                      <li key={i} className="flex items-start space-x-3 text-sm text-cream-paper/90">
-                        <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                        <span>{gap}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-              </div>
-
-              {/* Recommended Next Steps */}
-              <div className="p-6 rounded-2xl bg-gradient-to-r from-aqua-spotlight/30 via-slate-deep to-slate-midnight border border-cyan-accent/40">
-                <div className="font-mono text-xs text-cyan-accent tracking-widest uppercase mb-3">
-                  ACTIONABLE NEXT STEPS
-                </div>
-                <div className="space-y-2">
-                  {MOCK_FEEDBACK.next.map((step, i) => (
-                    <div key={i} className="flex items-center space-x-3 text-sm text-cream-paper font-medium">
-                      <ArrowRight className="w-4 h-4 text-cyan-accent shrink-0" />
+          <motion.div
+            whileHover={shouldReduceMotion ? undefined : { y: -2 }}
+            transition={{ type: "spring", stiffness: 360, damping: 24 }}
+            className="mt-6 rounded-2xl border border-cyan-accent/35 bg-gradient-to-r from-aqua-spotlight/40 via-slate-deep to-slate-midnight p-6"
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="font-mono text-xs tracking-[0.16em] text-cyan-accent uppercase">A practical plan for next time</div>
+                <div className="mt-3 space-y-2">
+                  {FEEDBACK.next.map((step, index) => (
+                    <div key={step} className="flex items-start gap-3 text-sm text-cream-paper">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-cyan-accent/40 font-mono text-[10px] text-cyan-accent">{index + 1}</span>
                       <span>{step}</span>
                     </div>
                   ))}
                 </div>
               </div>
-
+              <ArrowRight className="hidden h-6 w-6 shrink-0 text-cyan-accent sm:block" />
             </div>
-          ) : (
-            /* Raw JSON Output View */
-            <div className="font-mono text-xs text-cyan-accent/90 bg-black/70 rounded-2xl p-6 border border-aqua-spotlight/40 overflow-x-auto">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4 text-cream-muted">
-                <span>TERMINAL RESPONSE PAYLOAD</span>
-                <span>POST /api/interview</span>
-              </div>
-              <pre className="text-cream-paper leading-relaxed whitespace-pre-wrap">
-{JSON.stringify({
-  reply: "Thank you for completing the technical interview! Your feedback report is ready.",
-  done: true,
-  feedback: MOCK_FEEDBACK
-}, null, 2)}
-              </pre>
-            </div>
-          )}
+          </motion.div>
         </motion.div>
-
       </div>
     </section>
+  );
+}
+
+function FeedbackCard({ icon: Icon, title, items, tone, shouldReduceMotion }: { icon: LucideIcon; title: string; items: string[]; tone: "cyan" | "amber"; shouldReduceMotion: boolean | null }) {
+  const isCyan = tone === "cyan";
+  return (
+    <motion.div
+      whileHover={shouldReduceMotion ? undefined : { y: -4 }}
+      transition={{ type: "spring", stiffness: 350, damping: 24 }}
+      className={`rounded-2xl border p-6 ${isCyan ? "border-cyan-accent/30 bg-cyan-accent/5" : "border-amber-500/30 bg-amber-500/5"}`}
+    >
+      <div className={`flex items-center gap-2 font-mono text-xs font-bold tracking-widest uppercase ${isCyan ? "text-cyan-accent" : "text-amber-400"}`}><Icon className="h-4 w-4" />{title}</div>
+      <ul className="mt-4 space-y-3">
+        {items.map((item) => <li key={item} className="flex items-start gap-3 text-sm leading-relaxed text-cream-paper/90"><span className={`mt-2 h-1.5 w-1.5 shrink-0 rounded-full ${isCyan ? "bg-cyan-accent" : "bg-amber-400"}`} />{item}</li>)}
+      </ul>
+    </motion.div>
   );
 }
